@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Owner</title>
+  <meta charset="UTF-8">
+  <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->
+
+  <!-- The firebase library for website dashboard -->
+  <script src="https://www.gstatic.com/firebasejs/5.5.5/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBVP2RGhQhSJnviVX3rZuer4R70vWxapo8",
+      authDomain: "smartattendencesystem-b0b7a.firebaseapp.com",
+      databaseURL: "https://smartattendencesystem-b0b7a-default-rtdb.firebaseio.com",
+      projectId: "smartattendencesystem-b0b7a",
+      storageBucket: "smartattendencesystem-b0b7a.appspot.com",
+      messagingSenderId: "904732228766",
+      appId: "1:904732228766:web:6637c5381a6467d386cf8f",
+      measurementId: "G-3TZ5B22820"
+    };
+
+    firebase.initializeApp(config); /* init the above firebase configuration*/
+  </script>
+  <link href="style.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet"
+    crossorigin="anonymous" />
+  <link href="https://cdn.datatables.net/responsive/2.2.6/css/responsive.dataTables.min.css" rel="stylesheet">
+</head>
+<style>
+  .btn-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .delete-btn {
+    display: block;
+    text-decoration: none;
+    text-transform: uppercase;
+    border: 3px solid #ff4400;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    transition: all 0.5s;
+  }
+
+  .delete-btn:hover {
+    text-decoration: none;
+    background-color: #ff4400;
+    color: white;
+  }
+</style>
+
+<body>
+  <a style="text-decoration:none" href="#index.html">
+    <div class="heading">
+      <h3>IoT BASED FINGERPRINT SMART ATTENDENCE SYSTEM</h3>
+    </div>
+  </a>
+  <div>
+    <nav class="navbar bg-body-tertiary">
+      <form class="container-fluid justify-content-start ">
+        <div class="m-2">
+          <a href="EnrollStudent.html" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">ENROLL
+            STUDENT</a>
+          <a href="index.html" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">ATTENDENCE
+            LOG</a>
+        </div>
+
+      </form>
+    </nav>
+  </div>
+  <div class="title">
+    <h4>ATTENDENCE LOG</h4>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-table mr-1"></i>
+        Attendence Summary
+      </div>
+      <div class="card-body">
+        <button type="button" class="btn btn-primary" id="export">
+          <i class="fa fa-download" aria-hidden="true"></i>
+        </button>
+        <!-- SEND DATA TO DATABASE  -->
+        <!--
+          <div class="form-container">
+          <form action="" class="form-input">
+            <label for="id">Enter Enrolling Student ID</label>
+            <input type="number" name="id" id="StudentID" class="text-input">
+            <label for="enrollStatus">Enroll Status</label>
+            <select name="enroll-status" id="enrollStatus">
+              <option value="0">0</option>
+              <option value="1">1</option>
+            </select>
+            <button type="submit" id="submitButton">Submit</button>
+          </form>
+        </div>
+        -->
+
+        <!-- FETCH DATA TABLE -->
+        <div class="table-responsive">
+          <table class="table table-bordered display responsive nowrap" id="buttonTable" width="100%" cellspacing="0"
+            data-order="[]">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>FINGER ID</th>
+                <th>TIME IN</th>
+
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          <div class="btn-container">
+            <a href="" class="delete-btn" id="clearButton">Clear</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--
+ <div class="card mt-4">
+      <div class="card-header">
+          <i class="fa fa-table mr-1"></i>
+          LIVE STATUS
+      </div>
+      <div class="card-body users">
+        
+      </div>
+  </div>
+
+  -->
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/responsive/2.2.6/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+
+  <script>
+    $(function () {
+      /*initially no data available in the table */
+      $('.users').html('No data available');
+      document.getElementById("export").onclick = function () { exportCSV() };
+
+      function exportCSV() {
+        //// export CSV
+        $('#buttonTable').DataTable().button(0).trigger();
+      }
+
+      var button_table = $('#buttonTable').DataTable({
+        "ordering": false,
+        "paging": false,
+        buttons: [
+          {
+            extend: 'csv',
+            filename: 'file_name',
+            extension: '.csv'
+          }
+        ],
+        initComplete: function () {
+
+          $('.buttons-csv').hide();
+        }
+      });
+
+      // Get a reference to the 'Attendance' field in the Firebase database
+      const attendanceRef = firebase.database().ref('Attendence');
+      // Set up a listener for changes in the 'Attendance' field
+      attendanceRef.on('child_added', function (snapshot) {
+        // Get the student ID and timestamp from the snapshot
+        const StudentID = snapshot.key;
+        // Check if the timestamp already exists for the student ID
+        if (!snapshot.hasChild('TimeStamp')) {
+          // If the timestamp does not exist, add it using firebase.database.ServerValue.TIMESTAMP
+          attendanceRef.child(StudentID).child('TimeStamp').set(firebase.database.ServerValue.TIMESTAMP)
+            .then()
+            .catch((error) => {
+              console.error("Error adding the timestamp:", error);
+            });
+        }
+      });
+
+      //Send data to database
+      const database = firebase.database();
+      function addRow(id, name, fingerId, timeStamp) {
+        const row = `<tr>
+                  <td>${id}</td>
+                  <td>${name}</td>
+                  <td>${fingerId}</td>
+                  <td>${timeStamp}</td>
+                </tr>`;
+        $("#buttonTable tbody").append(row);
+        button_table.rows.add($(row)).draw();
+      }
+      function fetchAttendence() {
+        // Fetch student data from Firebase
+        database.ref('Student').once('value')
+          .then((snapshot) => {
+            const studentData = snapshot.val();
+            // Fetch attendance data from Firebase
+            return database.ref('Attendence').once('value')
+              .then((attendanceSnapshot) => {
+                const attendanceData = attendanceSnapshot.val();
+                // Iterate through the student data
+                for (const key in studentData) {
+                  if (studentData.hasOwnProperty(key)) {
+                    const { Name, StudentID } = studentData[key];
+                    // Check if the student ID exists in the 'Attendance' object
+                    if (attendanceData.hasOwnProperty(StudentID)) {
+                      const timeStamp = attendanceData[StudentID].TimeStamp;
+                      //format Date
+                      const date = new Date(timeStamp)
+                      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                      const formattedDate = new Intl.DateTimeFormat('en-Us', options).format(date);
+                      // Format time
+                      const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+                      const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
+                      addRow(StudentID, Name, key, formattedDate + ' ' + formattedTime);
+                    } else {
+                      // If the ID is not found in 'Attendance', you can choose to display a default value or leave it blank.
+                      addRow(StudentID, Name, key, "N/A");
+                    }
+                  }
+                }
+              });
+          })
+          .catch((error) => {
+            console.error("Error fetching data from the database:", error);
+          });
+      }
+      // Get a reference to the "Clear" button element
+      const clearButton = document.getElementById('clearButton');
+      clearButton.onclick = function () {
+        $("#buttonTable tbody").empty();
+        // Get a reference to the parent node (e.g., 'Attendence')
+        const parentNodeRef = firebase.database().ref('Attendence');
+
+        // Get a reference to the "Clear" button element
+        const clearButton = document.getElementById('clearButton');
+        attendanceRef.set('')
+          .then()
+          .catch((error) => {
+            console.error("Error deleting child nodes:", error);
+          });
+      };
+      fetchAttendence();
+    });
+  </script>
+</body>
+
+</html>
